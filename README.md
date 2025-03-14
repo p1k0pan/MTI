@@ -14,7 +14,7 @@ pip install deepspeed
 ```
 
 ## 训练
-1. 更新一下p1k0/MIT10M-refine里面的数据，确保test和train文件夹下载正确
+1. 更新一下[p1k0/MIT10M-refine](https://huggingface.co/datasets/p1k0/MIT10M-refine/tree/main)里面的数据，确保test和train文件夹下载正确
 2. `cd LLaMA-Factory`
 3. 将sample好的数据放到 `data/`文件夹下
 4. 在`data/dataset_info.json` 里面添加训练数据的名称和地址
