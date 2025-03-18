@@ -26,7 +26,7 @@ pip install deepspeed
 7. 训练结束后将lora参数与模型合并，需要修改`examples/merge_lora/qwen2vl_lora_sft.yaml`文件
     - adapter_name_or_path：训练完成的文件夹，对应训练配置文件里的output_dir
     - export_dir：合并的地址
-8. 合并： `llamafactory-cli export examples/merge_lora/qwen2vl_lora_sft.yaml`
+8. 在`LLaMA-Factory`目录下进行合并： `llamafactory-cli export examples/merge_lora/qwen2vl_lora_sft.yaml`
 
 ## 推理
 
