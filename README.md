@@ -61,3 +61,10 @@ pip install wandb deepspeed timm
     - `NPROC_PER_NODE` 使用多少块卡
     - `CUDA_VISIBLE_DEVICES` 指定卡号
     - `--output_dir` 输出位置
+3. 开始训练 `bash mit10_train.sh`
+4. 训练完成，修改`merge.sh`进行lora权重合并
+    - `--adapters` 训练保存的位置
+    - `--output_dir` 合并输出的位置
+5. 开始合并 `bash merge.sh`
+
+### 推理
