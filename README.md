@@ -40,7 +40,7 @@ pip install deepspeed wandb
 
 ## InternVL
 ### 安装
-1. 安装InternVL
+1. 首先进入InterVL文件夹`cd InternVL`，安装InternVL
 ```
 pip install -r requirements.txt
 pip install flash-attn==2.3.6 --no-build-isolation
@@ -54,7 +54,7 @@ pip install wandb deepspeed timm
 ```
 
 ### 训练
-1. `cd InternVL`
+1. 在InternVL文件夹下（`cd InternVL`）
 2. 更改`mit10_train.sh`里的设置
     - `--dataset`更改每个训练文件的位置
     - `--val-dataset` 更改验证集位置
