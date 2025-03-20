@@ -103,6 +103,7 @@ def load_image(image_file, input_size=448, max_num=12):
 def generate(text, image_file):
     pixel_values = load_image(image_file, max_num=12).to(torch.bfloat16).cuda()
     generation_config = dict(max_new_tokens=512, do_sample=True, temperature=0.9, top_p=0.9, num_beams=1)
+    model.system_message = sp
     response = model.chat(tokenizer, pixel_values, text, generation_config)
     return response
 
