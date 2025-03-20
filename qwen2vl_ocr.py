@@ -163,7 +163,7 @@ if __name__ == "__main__":
             if sl == tl:
                 continue
             al = f"{sl}2{tl}"
-            img_source = root+"MIT10M-refine/test/test_{sl}.json"
+            img_source = root+f"MIT10M-refine/test/test_{sl}.json"
             output_path = f"evaluations/{model_name}/mit10/ocr_mt/{sl}/{al}/"
             if os.path.exists(output_path + output_name):
                 continue

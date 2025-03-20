@@ -1,4 +1,5 @@
-## 安装
+## Qwen
+### 安装
 
 1. 安装qwen2.5vl依赖
 ```
@@ -10,10 +11,10 @@ pip install qwen-vl-utils[decord]
 ```
 cd LLaMA-Factory
 pip install -e ".[torch,metrics]"
-pip install deepspeed
+pip install deepspeed wandb
 ```
 
-## 训练
+### 训练
 1. 更新一下[p1k0/MIT10M-refine](https://huggingface.co/datasets/p1k0/MIT10M-refine/tree/main)里面的数据，确保test和train文件夹下载正确
 2. `cd LLaMA-Factory`
 3. 将sample好的数据放到 `data/`文件夹下
@@ -28,10 +29,35 @@ pip install deepspeed
     - export_dir：合并的地址
 8. 在`LLaMA-Factory`目录下进行合并： `llamafactory-cli export examples/merge_lora/qwen2vl_lora_sft.yaml`
 
-## 推理
+### 推理
 
 1. 在qwen2vl_ocr.py里修改
     - model_name 模型名字，决定了保存的目录名称
     - root 数据存放的地点
     - args.model_path 模型地址路径
 2. `CUDA_VISIBLE_DEVICES=0 python qwen2vl_ocr.py`
+
+
+## InternVL
+### 安装
+1. 安装InternVL
+```
+pip install -r requirements.txt
+pip install flash-attn==2.3.6 --no-build-isolation
+mim install mmcv
+```
+
+2. 安装ms-swift
+```
+pip install "ms-swift"
+pip install wandb deepspeed timm
+```
+
+### 训练
+1. `cd InternVL`
+2. 更改`mit10_train.sh`里的设置
+    - `--dataset`更改每个训练文件的位置
+    - `--val-dataset` 更改验证集位置
+    - `NPROC_PER_NODE` 使用多少块卡
+    - `CUDA_VISIBLE_DEVICES` 指定卡号
+    - `--output_dir` 输出位置
