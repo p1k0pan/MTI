@@ -46,7 +46,17 @@ pip install -r requirements.txt
 pip install flash-attn==2.3.6 --no-build-isolation
 mim install mmcv
 ```
-
+P.S. 如果安装Internvl的环境有问题可参考是否有一下问题
+```
+1. 默认无痛的环境要求cuda12.4，其他环境或许有办法，依赖过多
+2. 装完环境之后，必须先升级bitsandbytes
+pip uninstall bitsandbytes
+pip install --upgrade "bitsandbytes>=0.43.2"
+3. 最后再升级accelerate
+pip install --upgrade accelerate
+4. cv2手动升级
+pip install -U opencv-python
+```
 2. 安装ms-swift
 ```
 pip install "ms-swift"
