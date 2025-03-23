@@ -142,9 +142,8 @@ if __name__ == "__main__":
     max_pixels = 1280 * 28 * 28
     processor = AutoProcessor.from_pretrained(args.model_path,  min_pixels=min_pixels, max_pixels=max_pixels)
 
-    sp=None
     root = ""
-    model_name=""
+    output_folder=""
     args.model_path = ""
    
 
@@ -164,17 +163,17 @@ if __name__ == "__main__":
                 continue
             al = f"{sl}2{tl}"
             img_source = root+f"MIT10M-refine/test/test_{sl}.json"
-            output_path = f"evaluations/{model_name}/mit10/ocr_mt/{sl}/{al}/"
+            output_path = f"evaluations/{output_folder}/mit10/ocr_mt/{sl}/{al}/"
             if os.path.exists(output_path + output_name):
                 continue
-            print(output_path)
+            print(output_path + output_name)
             ocr_mt(image_folder, img_source, al, output_path)
 
     #ocrmt
     image_folder = root+"OCRMT30K-refine/whole_image_v2/"
     img_source = root+"OCRMT30K-refine/original_data/original_test_1000.json"
     lang = "zh2en"
-    output_path = f"evaluations/{model_name}/ocrmt/ocr_mt/{lang}/"
+    output_path = f"evaluations/{output_folder}/ocrmt/ocr_mt/{lang}/"
     print(output_path)
     ocr_mt(image_folder, img_source, lang, output_path)
 
@@ -189,6 +188,6 @@ if __name__ == "__main__":
     }
     for lang, ref in lang_ref.items():
         image_folder = root+ f"AnyTrans-refine/images/{lang}/"
-        output_path = f"evaluations/{model_name}/anytrans/{lang}/ocr_mt/"
+        output_path = f"evaluations/{output_folder}/anytrans/{lang}/ocr_mt/"
         print(output_path)
         ocr_mt(image_folder, ref, lang, output_path)

@@ -31,11 +31,12 @@ pip install deepspeed wandb
 
 ### 推理
 
-1. 在qwen2vl_ocr.py里修改
-    - model_name 模型名字，决定了保存的目录名称
-    - root 数据存放的地点
-    - args.model_path 模型地址路径
-2. `CUDA_VISIBLE_DEVICES=0 python qwen2vl_ocr.py`
+1. 推理文件分为 `qwen2vl_w_ocr.py`和`qwen2vl_wo_ocr.py`，分别代表(w)使用ocr结果做推理，和(wo)不使用ocr结果做推理
+2. 在推理文件里修改
+   - output_folder 输出目录名称
+   - root 数据存放的地点
+   - args.model_path 模型地址路径
+3. `CUDA_VISIBLE_DEVICES=0 python qwen2vl_w_ocr.py`
 
 
 ## InternVL
@@ -79,8 +80,9 @@ pip install wandb deepspeed timm
 
 ### 推理
 
-1. 在internvl_gen.py里修改
+1. 推理文件分为 `internvl_w_ocr.py`和`internvl_wo_ocr.py`，分别代表(w)使用ocr结果做推理，和(wo)不使用ocr结果做推理
+2. 在推理文件里修改
    - output_folder 输出目录名称
    - root 数据存放的地点
    - model_path 模型地址路径
-2. `CUDA_VISIBLE_DEVICES=0 python internvl_gen.py`
+3. `CUDA_VISIBLE_DEVICES=0 python internvl_w_ocr.py`
