@@ -188,7 +188,7 @@ if __name__ == '__main__':
             output_path = f"evaluations/{output_folder}/mit10/ppocr_vl_mt/{sl}/{al}/"
             if os.path.exists(output_path + output_name):
                 continue
-            print(output_path)
+            print(output_path + output_name)
             # ocr_mt(image_folder, img_source, al, output_path)
             ppocr_data = root+f"MIT10M-refine/ppocr/ppocr_mit10_{sl}.json"
             pp_ocr_mt(image_folder, img_source, al, ppocr_data, output_path)
