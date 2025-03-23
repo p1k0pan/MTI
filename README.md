@@ -80,7 +80,7 @@ pip install wandb deepspeed timm
 ### 推理
 
 1. 在internvl_gen.py里修改
-   - output_name 输出目录名称
+   - output_folder 输出目录名称
    - root 数据存放的地点
    - model_path 模型地址路径
 2. `CUDA_VISIBLE_DEVICES=0 python internvl_gen.py`
