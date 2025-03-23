@@ -100,7 +100,7 @@ def load_image(image_file, input_size=448, max_num=12):
     pixel_values = torch.stack(pixel_values)
     return pixel_values
 
-def generate(text, image_file):
+def generate(text, image_file, sp):
     pixel_values = load_image(image_file, max_num=12).to(torch.bfloat16).cuda()
     generation_config = dict(max_new_tokens=512, do_sample=True, temperature=0.9, top_p=0.9, num_beams=1)
     model.system_message = sp
@@ -119,14 +119,52 @@ def ocr_mt(image_folder, ref, lang, output_path):
 
     json.dump(results, open(output_path + output_name, "w", encoding="utf-8"), ensure_ascii=False, indent=4)
 
+def pp_ocr_mt(image_folder, ref, lang, ppocr_data, output_path):
+    Path(output_path).mkdir(parents=True, exist_ok=True)
+    results = {}
+    ref = json.load(open(ref, "r", encoding="utf-8"))
+    ppocr_data = json.load(open(ppocr_data, "r", encoding="utf-8"))
+    src_lang, tgt_lang = lang.split("2")
 
-sp = "Please strictly follow the steps below to process the text in the image:\n1. **Comprehensive Recognition**: Extract all visible text elements in the image (including words, numbers, symbols, special characters)\n2. **Translatable text**: Accurate translation into target language, Special text such as parameters, symbols can be left as they are.\n3. **Format retention**:\n   - Maintain original text alignment\n   - Original line breaks and paragraph structure are preserved\n4. **Quality check**:\n   (1) Verify that all text blocks have been processed\n   (2) Verify terminology accuracy\n**Output Standardization**:\n1. prohibit inclusion of original text\n2. Prohibit the addition of explanatory notes\n3. Only output the translated text in the target language\n" #2
+
+    for img, item in tqdm.tqdm(ref.items()):
+        p_data = ppocr_data[img]
+        objs = '\n'.join(p_data["output"])
+
+        image_path = image_folder+img
+        sp = sp_temp.format(ocr_text=objs)
+        text = text_temp.format(lang=lang_map[tgt_lang])
+        outputs = generate(text, image_path, sp )
+        results[img] = {"mt": outputs, "ref": item[tgt_lang], "src": item[src_lang], "pp_ocr": objs} 
+
+    json.dump(results, open(output_path + output_name, "w", encoding="utf-8"), ensure_ascii=False, indent=4)
+
+
+sp_temp = """Please strictly follow the steps below to process the text in the image:
+1. **Comprehensive Recognition**: Extract all visible text elements in the image (including words, numbers, symbols, special characters)
+2. **Translatable text**: Accurate translation into target language, Special text such as parameters, symbols can be left as they are.
+3. **Format retention**:
+   - Maintain original text alignment
+   - Original line breaks and paragraph structure are preserved
+4. **Quality check**:
+   (1) Verify that all text blocks have been processed
+   (2) Verify terminology accuracy
+**Output Standardization**:
+1. prohibit inclusion of original text
+2. Prohibit the addition of explanatory notes
+3. Only output the translated text in the target language
+---
+[OCR_TEXT_FOR_MODEL_REFERENCE]
+{ocr_text}
+
+(Please do not include the above original text in the final output, just the translation!)
+"""#2 ocr
 text_temp = "Please translate the text in the image into {lang}."
 
 if __name__ == '__main__':
     model_path = 'OpenGVLab/InternVL2_5-8B'
     root = ""
-    output_name=""
+    output_folder=""
 
     model = AutoModel.from_pretrained(
         model_path,
@@ -147,19 +185,23 @@ if __name__ == '__main__':
                 continue
             al = f"{sl}2{tl}"
             img_source = root+f"MIT10M-refine/test/test_{sl}.json"
-            output_path = f"evaluations/{output_name}/mit10/ocr_mt/{sl}/{al}/"
+            output_path = f"evaluations/{output_folder}/mit10/ppocr_vl_mt/{sl}/{al}/"
             if os.path.exists(output_path + output_name):
                 continue
             print(output_path)
-            ocr_mt(image_folder, img_source, al, output_path)
+            # ocr_mt(image_folder, img_source, al, output_path)
+            ppocr_data = root+f"MIT10M-refine/ppocr/ppocr_mit10_{sl}.json"
+            pp_ocr_mt(image_folder, img_source, al, ppocr_data, output_path)
 
     #ocrmt
     image_folder = root+"OCRMT30K-refine/whole_image_v2/"
     img_source = root+"OCRMT30K-refine/original_data/original_test_1000.json"
     lang = "zh2en"
-    output_path = f"evaluations/{output_name}/ocrmt/ocr_mt/{lang}/"
+    output_path = f"evaluations/{output_folder}/ocrmt/ppocr_vl_mt/{lang}/"
     print(output_path)
-    ocr_mt(image_folder, img_source, lang, output_path)
+    # ocr_mt(image_folder, img_source, lang, output_path)
+    ppocr_data = root+"OCRMT30K-refine/ppocr_ocrmt.json"
+    pp_ocr_mt(image_folder, img_source, lang, ppocr_data, output_path)
 
     #anytrans
     lang_ref = {
@@ -172,6 +214,8 @@ if __name__ == '__main__':
     }
     for lang, ref in lang_ref.items():
         image_folder = root+ f"AnyTrans-refine/images/{lang}/"
-        output_path = f"evaluations/{output_name}/anytrans/{lang}/ocr_mt/"
+        output_path = f"evaluations/{output_folder}/anytrans/{lang}/ppocr_vl_mt/"
         print(output_path)
-        ocr_mt(image_folder, ref, lang, output_path)
+        # ocr_mt(image_folder, ref, lang, output_path)
+        ppocr_data = root+f"AnyTrans-refine/ppocr_{lang}.json"
+        pp_ocr_mt(image_folder, ref, lang, ppocr_data, output_path)
