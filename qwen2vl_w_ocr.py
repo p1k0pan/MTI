@@ -121,6 +121,25 @@ def pp_ocr_mt(image_folder, ref, lang, ppocr_data, output_path):
 
     json.dump(results, open(output_path + output_name, "w", encoding="utf-8"), ensure_ascii=False, indent=4)
 
+def pp_ocr_mt_100(image_folder, ref, lang,output_path):
+    Path(output_path).mkdir(parents=True, exist_ok=True)
+    results = {}
+    ref = json.load(open(ref, "r", encoding="utf-8"))
+    src_lang, tgt_lang = lang.split("2")
+
+
+    for img, item in tqdm.tqdm(ref.items()):
+       
+        objs = '\n'.join(item["ocr_result"])
+
+        image_path = image_folder+img
+        sp = sp_temp.format(ocr_text=objs)
+        text = text_temp.format(lang=lang_map[tgt_lang])
+        outputs = generate(text, image_path, sp )
+        results[img] = {"mt": outputs, "src": item[src_lang], "pp_ocr": objs} 
+
+    json.dump(results, open(output_path + output_name, "w", encoding="utf-8"), ensure_ascii=False, indent=4)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -177,46 +196,62 @@ if __name__ == "__main__":
     text_temp = "Please translate the text in the image into {lang}."
 
     output_name = "sft_prompt2.json"
-    #MIT10M
-    image_folder = root+"MIT10M-refine/data/small/"
 
-    src_lang = ["en", "zh", "ja", "de", "es", "fr", "it", "pt"]
-    tgt_lang = ["zh", "en", "ko", "ja", "de", "es", "fr", "it", "pt", "ru", "th", "hi", "tr", "ar"]
-    for sl in src_lang:
-        for tl in tgt_lang:
-            if sl == tl:
-                continue
-            al = f"{sl}2{tl}"
-            img_source = root+f"MIT10M-refine/test/test_{sl}.json"
-            output_path = f"evaluations/{output_folder}/mit10/ppocr_vl_mt/{sl}/{al}/"
+    # #MIT10M
+    # image_folder = root+"MIT10M-refine/data/small/"
+
+    # src_lang = ["en", "zh", "ja", "de", "es", "fr", "it", "pt"]
+    # tgt_lang = ["zh", "en", "ko", "ja", "de", "es", "fr", "it", "pt", "ru", "th", "hi", "tr", "ar"]
+    # for sl in src_lang:
+    #     for tl in tgt_lang:
+    #         if sl == tl:
+    #             continue
+    #         al = f"{sl}2{tl}"
+    #         img_source = root+f"MIT10M-refine/test/test_{sl}.json"
+    #         output_path = f"evaluations/{output_folder}/mit10/ppocr_vl_mt/{sl}/{al}/"
             
-            if os.path.exists(output_path + output_name):
+    #         if os.path.exists(output_path + output_name):
+    #             continue
+    #         print(output_path + output_name)
+    #         ppocr_data = root+f"MIT10M-refine/ppocr/ppocr_mit10_{sl}.json"
+    #         pp_ocr_mt(image_folder, img_source, al, ppocr_data, output_path)
+
+    # #ocrmt
+    # image_folder = root+"OCRMT30K-refine/whole_image_v2/"
+    # img_source = root+"OCRMT30K-refine/original_data/original_test_1000.json"
+    # lang = "zh2en"
+    # output_path = f"evaluations/{output_folder}/ocrmt/ppocr_vl_mt/{lang}/"
+    # print(output_path)
+    # ppocr_data = root+"OCRMT30K-refine/ppocr_ocrmt.json"
+    # pp_ocr_mt(image_folder, img_source, lang, ppocr_data, output_path)
+
+    # #anytrans
+    # lang_ref = {
+    #     "en2zh": root+"AnyTrans-refine/en2zh_231.json",
+    #     "zh2en": root+"AnyTrans-refine/zh2en_191.json",
+    #     "ja2zh": root+"AnyTrans-refine/ja2zh_211.json",
+    #     "ko2zh": root+"AnyTrans-refine/ko2zh_196.json",
+    #     "zh2ja": root+"AnyTrans-refine/zh2ja_200.json",
+    #     "zh2ko": root+"AnyTrans-refine/zh2ko_170.json",
+    # }
+    # for lang, ref in lang_ref.items():
+    #     image_folder = root+ f"AnyTrans-refine/images/{lang}/"
+    #     output_path = f"evaluations/{output_folder}/anytrans/{lang}/ppocr_vl_mt/"
+    #     print(output_path)
+    #     ppocr_data = root+f"AnyTrans-refine/ppocr_{lang}.json"
+    #     pp_ocr_mt(image_folder, ref, lang, ppocr_data, output_path)
+
+    # dataset100
+    langs = ["zh2de", "zh2ar", "zh2hi", "zh2ja", "zh2ru", "zh2es"]
+    image_folder = root+ "dataset100/test_images/"
+    test_folder = Path(root+"dataset100/test_100")
+    for lang in langs:
+
+        for test_file in test_folder.rglob("*.json"):
+            output_path = f"evaluations/{output_folder}/dataset100/ppocr_vl_mt/{lang}/{test_file.stem}/"
+            if os.path.exists(output_path+output_name):
                 continue
-            print(output_path + output_name)
-            ppocr_data = root+f"MIT10M-refine/ppocr/ppocr_mit10_{sl}.json"
-            pp_ocr_mt(image_folder, img_source, al, ppocr_data, output_path)
-
-    #ocrmt
-    image_folder = root+"OCRMT30K-refine/whole_image_v2/"
-    img_source = root+"OCRMT30K-refine/original_data/original_test_1000.json"
-    lang = "zh2en"
-    output_path = f"evaluations/{output_folder}/ocrmt/ppocr_vl_mt/{lang}/"
-    print(output_path)
-    ppocr_data = root+"OCRMT30K-refine/ppocr_ocrmt.json"
-    pp_ocr_mt(image_folder, img_source, lang, ppocr_data, output_path)
-
-    #anytrans
-    lang_ref = {
-        "en2zh": root+"AnyTrans-refine/en2zh_231.json",
-        "zh2en": root+"AnyTrans-refine/zh2en_191.json",
-        "ja2zh": root+"AnyTrans-refine/ja2zh_211.json",
-        "ko2zh": root+"AnyTrans-refine/ko2zh_196.json",
-        "zh2ja": root+"AnyTrans-refine/zh2ja_200.json",
-        "zh2ko": root+"AnyTrans-refine/zh2ko_170.json",
-    }
-    for lang, ref in lang_ref.items():
-        image_folder = root+ f"AnyTrans-refine/images/{lang}/"
-        output_path = f"evaluations/{output_folder}/anytrans/{lang}/ppocr_vl_mt/"
-        print(output_path)
-        ppocr_data = root+f"AnyTrans-refine/ppocr_{lang}.json"
-        pp_ocr_mt(image_folder, ref, lang, ppocr_data, output_path)
+            else:
+                Path(output_path).mkdir(parents=True, exist_ok=True)
+            print(output_path)
+            pp_ocr_mt_100(image_folder, test_file, lang, output_path)
